@@ -9,7 +9,20 @@ def get_messages_from_js(message, data):
  
 
 def instrument_debugger_checks():
-    hook_code = """setTimeout(function(){Java.enumerateLoadedClasses({onMatch: function(className) {send(className);},onComplete:function(){send("done");}});},0);"""
+    hook_code = """
+    setTimeout(
+    function() {
+        Java.perform(function() {
+            Java.enumerateLoadedClasses({
+                onMatch: function(className) {
+                    send(className);
+                },
+                onComplete: function() {
+                    send("done");
+                }
+            })})
+    }, 0)
+    """
     return hook_code
 
 process = frida.get_device_manager().enumerate_devices()[-1].attach(package_name)
